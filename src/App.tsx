@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { FaFacebook, FaInstagram, FaTiktok, FaGraduationCap, FaUser, FaLightbulb, FaCamera, FaPenFancy, FaMicrophone, FaMoon, FaSun, FaEnvelope, FaCalendarAlt, FaFileDownload, FaArrowRight, FaCheck, FaDownload } from 'react-icons/fa'
+import { FaFacebook, FaInstagram, FaTiktok, FaGraduationCap, FaUser, FaLightbulb, FaCamera, FaPenFancy, FaMicrophone, FaMoon, FaSun, FaEnvelope, FaCalendarAlt, FaFileDownload, FaArrowRight, FaCheck, FaDownload, FaPhone, FaMapMarkerAlt, FaLinkedin, FaTwitter } from 'react-icons/fa'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import emailjs from '@emailjs/browser'
 import { emailConfig } from './config/emailConfig'
@@ -21,6 +21,7 @@ function App() {
   const [showError, setShowError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [activeSection, setActiveSection] = useState('')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -46,6 +47,33 @@ function App() {
     message: ''
   });
 
+  // Add testimonials data
+  const testimonials = [
+    {
+      name: "Isaac Kodom Boateng",
+      title: "Software Developer",
+      image: isaacImage,
+      content: "Theresa's work is exceptional. Her attention to detail and ability to capture the essence of a story is remarkable."
+    },
+    {
+      name: "Michael Chen",
+      title: "Editor-in-Chief",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100",
+      content: "Working with Theresa has been a pleasure. Her professionalism and creativity bring stories to life."
+    },
+    {
+      name: "Aisha Osei",
+      title: "Media Producer",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100",
+      content: "Theresa's storytelling abilities are unmatched. She has a unique way of connecting with her audience."
+    }
+  ];
+
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init(emailConfig.publicKey)
+  }, [])
+
   useEffect(() => {
     // Check if user prefers dark mode
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -60,85 +88,74 @@ function App() {
     }
   }, [darkMode])
 
-  const fadeIn: Variants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 }
-  }
-
-  const staggerContainer: Variants = {
-    animate: {
-      transition: {
-        staggerChildren: 0.1
+  const animations = {
+    section: {
+      hidden: { opacity: 0, y: 20 },
+      visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: {
+          duration: 0.6,
+          ease: "easeOut"
+        }
       }
+    },
+    card: {
+      hidden: { opacity: 0, y: 20 },
+      visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: {
+          duration: 0.4,
+          ease: "easeOut"
+        }
+      }
+    },
+    stagger: {
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1
+        }
+      }
+    },
+    logo: {
+      initial: { 
+        opacity: 0,
+        y: -20
+      },
+      animate: { 
+        opacity: 1,
+        y: 0,
+        transition: {
+          duration: 0.8,
+          ease: "easeOut"
+        }
+      },
+      hover: {
+        scale: 1.05,
+        transition: {
+          duration: 0.3,
+          ease: "easeInOut"
+        }
+      }
+    },
+    letter: {
+      initial: { 
+        opacity: 0,
+        y: 20
+      },
+      animate: (i: number) => ({ 
+        opacity: 1,
+        y: 0,
+        transition: {
+          delay: i * 0.1,
+          duration: 0.5,
+          ease: "easeOut"
+        }
+      })
     }
-  }
-
-  const nameAnimation: Variants = {
-    initial: { 
-      opacity: 0,
-      y: 50,
-      scale: 0.8
-    },
-    animate: { 
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.6, -0.05, 0.01, 0.99]
-      }
-    }
-  }
-
-  const sectionBackgrounds = {
-    about: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070',
-    skills: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070',
-    education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070',
-    traits: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070',
-    contact: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029',
-    work: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070',
-    mediaKit: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2070',
-    booking: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070'
-  }
-
-  const heroBackground = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070'
-
-  const logoVariants: Variants = {
-    initial: { 
-      opacity: 0,
-      y: -20
-    },
-    animate: { 
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut"
-      }
-    },
-    hover: {
-      scale: 1.05,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut"
-      }
-    }
-  }
-
-  const letterVariants: Variants = {
-    initial: { 
-      opacity: 0,
-      y: 20
-    },
-    animate: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    })
   }
 
   // Add notification timeout
@@ -193,59 +210,43 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-
-    if (!validateForm(form)) {
-      setFormStatus('error');
-      return;
-    }
-
-    setFormStatus('sending');
+    setIsSubmitting(true);
+    setShowSuccess(false);
+    setShowError(false);
+    setErrorMessage('');
 
     try {
-      await emailjs.sendForm(
+      const templateParams = {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message
+      };
+
+      console.log('Sending email with params:', templateParams); // Debug log
+
+      const response = await emailjs.send(
         emailConfig.serviceID,
         emailConfig.templateID,
-        formRef.current!,
-        emailConfig.publicKey
+        templateParams
       );
-      setFormStatus('success');
-      formRef.current?.reset();
-    } catch (error) {
-      console.error('Error sending email:', error);
-      setFormStatus('error');
-    }
-  };
 
-  const handleContactSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setShowSuccess(false)
-    setShowError(false)
-    setErrorMessage('')
+      console.log('Email sent successfully:', response); // Debug log
 
-    try {
-      await emailjs.sendForm(
-        'YOUR_SERVICE_ID', // Replace with your EmailJS service ID
-        'YOUR_TEMPLATE_ID', // Replace with your EmailJS template ID
-        contactFormRef.current!,
-        'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
-      )
-
-      setShowSuccess(true)
+      setShowSuccess(true);
       setFormData({
         name: '',
         email: '',
         message: '',
         type: 'message'
-      })
+      });
     } catch (error) {
-      setShowError(true)
-      setErrorMessage('Failed to send message. Please try again.')
+      console.error('Error sending email:', error);
+      setShowError(true);
+      setErrorMessage('Failed to send message. Please try again.');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -256,10 +257,10 @@ function App() {
 
     try {
       await emailjs.sendForm(
-        'YOUR_SERVICE_ID', // Replace with your EmailJS service ID
-        'YOUR_BOOKING_TEMPLATE_ID', // Replace with your EmailJS booking template ID
+        emailConfig.serviceID,
+        emailConfig.templateID,
         bookingFormRef.current!,
-        'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
+        emailConfig.publicKey
       )
 
       setShowSuccess(true)
@@ -281,122 +282,199 @@ function App() {
     setDarkMode(!darkMode)
   }
 
+  const sectionBackgrounds = {
+    about: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070',
+    skills: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070',
+    education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070',
+    traits: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070',
+    contact: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029',
+    work: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070',
+    mediaKit: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=2070',
+    booking: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070',
+    testimonials: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070'
+  }
+
+  const heroBackground = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070'
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const navHeight = 64; // Height of the navbar
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+      // Close mobile menu first
+      setIsMobileMenuOpen(false);
+
+      // Add a small delay before scrolling
+      setTimeout(() => {
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  };
+
+  // Navigation items with their corresponding section IDs
+  const navigationItems = [
+    { id: 'about', label: 'About' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'featured-work', label: 'Featured Work' },
+    { id: 'testimonials', label: 'Testimonials' },
+    { id: 'contact', label: 'Contact' }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md border-b border-gray-800/50 shadow-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <motion.div 
-              className="flex items-center"
-              initial="initial"
-              animate="animate"
-              whileHover="hover"
+          <div className="flex justify-between items-center h-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex-shrink-0"
             >
-              <motion.div
-                variants={logoVariants}
-                className="flex items-center space-x-3"
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                className="group flex items-center"
               >
                 <div className="relative">
-                  <motion.div
-                    className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                  >
-                    <span className="text-white font-bold text-lg">TO</span>
-                  </motion.div>
-                  <motion.div
-                    className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-20 blur-sm"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.2, 0.3, 0.2],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-500 rounded-md blur opacity-25 group-hover:opacity-75 transition duration-200"></div>
+                  <div className="relative bg-gray-900/90 backdrop-blur-sm px-4 py-1.5 rounded-md border border-gray-800/50 shadow-lg">
+                    <div className="flex items-center space-x-2">
+                      <div className="relative w-6 h-6">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-sm opacity-50"></div>
+                        <div className="relative w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">TO</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent tracking-wide">
+                          Theresa
+                        </span>
+                        <span className="text-lg font-light text-gray-300 tracking-wide">
+                          Odoom
+                        </span>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-purple-500/50 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <motion.div
-                    className="flex"
-                    variants={logoVariants}
-                  >
-                    {"Theresa Odoom".split("").map((letter, i) => (
-                      <motion.span
-                        key={i}
-                        custom={i}
-                        variants={letterVariants}
-                        className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-bold text-lg"
-                        whileHover={{ 
-                          scale: 1.2,
-                          transition: { duration: 0.2 }
-                        }}
-                        animate={{
-                          backgroundPosition: ['0%', '100%'],
-                          backgroundSize: ['200%', '200%'],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          ease: "easeInOut"
-                        }}
-                      >
-                        {letter}
-                      </motion.span>
-                    ))}
-                  </motion.div>
-                  <motion.div
-                    className="text-purple-400 text-sm"
-                    variants={logoVariants}
-                  >
-                    Journalist & Content Creator
-                  </motion.div>
-                </div>
-              </motion.div>
+              </a>
             </motion.div>
 
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center space-x-8">
-              {[
-                { href: "#about", label: "About" },
-                { href: "#skills", label: "Skills" },
-                { href: "#education", label: "Education" },
-                { href: "#traits", label: "Traits" },
-                { href: "#featured-work", label: "Work" },
-                { href: "#media-kit", label: "Media Kit" }
-              ].map((link) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
+            {/* Desktop Navigation */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="hidden md:flex items-center space-x-8"
+            >
+              {navigationItems.map((item) => (
+                <motion.button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
                   className="relative text-gray-300 hover:text-white transition-colors duration-300 group"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
-                </motion.a>
+                  <span className="relative z-10 capitalize">
+                    {item.label}
+                  </span>
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="flex items-center space-x-4">
-              <motion.a
-                href="#contact"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 font-medium"
+            {/* Mobile Menu Button */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="md:hidden"
+            >
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="relative p-2 text-gray-300 hover:text-white focus:outline-none group"
               >
-                Contact Me
-              </motion.a>
-            </div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg blur opacity-0 group-hover:opacity-25 transition duration-200"></div>
+                <svg
+                  className="h-6 w-6 relative z-10"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {isMobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
+            </motion.div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden bg-gray-900/95 backdrop-blur-md border-b border-gray-800 fixed top-16 left-0 right-0 z-50"
+            >
+              <div className="px-4 pt-2 pb-3 space-y-1">
+                {navigationItems.map((item) => (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => {
+                      console.log('Clicking section:', item.id);
+                      const element = document.getElementById(item.id);
+                      console.log('Found element:', element);
+                      scrollToSection(item.id);
+                    }}
+                    className="relative w-full text-left px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-md transition-colors duration-300 group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="relative z-10 capitalize">
+                      {item.label}
+                    </span>
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -417,122 +495,54 @@ function App() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="mb-8"
+            className="mb-12"
           >
             <motion.img 
               src={profileImage} 
               alt="Theresa Odoom" 
-              className="w-40 h-40 rounded-full mx-auto border-4 border-white shadow-xl object-cover"
+              className="w-48 h-48 rounded-full mx-auto border-4 border-white shadow-2xl object-cover"
               whileHover={{ scale: 1.05, rotate: 2 }}
               transition={{ type: "spring", stiffness: 300 }}
             />
-            <motion.div
-              className="mt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <motion.div
-                className="flex justify-center space-x-1"
-                initial="initial"
-                animate="animate"
-              >
-                {"Theresa Odoom".split("").map((letter, i) => (
-                  <motion.span
-                    key={i}
-                    custom={i}
-                    variants={letterVariants}
-                    className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
-                    whileHover={{ 
-                      scale: 1.2,
-                      transition: { duration: 0.2 }
-                    }}
-                    animate={{
-                      backgroundPosition: ['0%', '100%'],
-                      backgroundSize: ['200%', '200%'],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut"
-                    }}
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-              </motion.div>
-              <motion.div
-                className="mt-2 text-xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                Journalist & Content Creator
-              </motion.div>
-            </motion.div>
           </motion.div>
-
-          <motion.div
-            className="mt-4 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 1 }}
+            className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
           >
-            <motion.div
-              className="flex flex-wrap justify-center gap-1"
-              initial="initial"
-              animate="animate"
-            >
-              {[
-                "Crafting",
-                "compelling",
-                "stories",
-                "and",
-                "creating",
-                "engaging",
-                "content",
-                "that",
-                "resonates",
-                "with",
-                "audiences"
-              ].map((word, i) => (
-                <motion.span
-                  key={i}
-                  custom={i}
-                  variants={letterVariants}
-                  className="text-lg text-gray-200"
-                  whileHover={{ 
-                    scale: 1.1,
-                    color: "#a855f7",
-                    transition: { duration: 0.2 }
-                  }}
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </motion.div>
-          </motion.div>
-
+            Theresa Odoom
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto"
+          >
+            Journalist & Content Creator
+          </motion.p>
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            className="flex justify-center space-x-4 mt-6"
+            transition={{ delay: 0.6 }}
+            className="flex justify-center space-x-6 mt-8"
           >
             <motion.a
               href="#contact"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white rounded-lg hover:from-purple-700 hover:via-pink-600 hover:to-red-600 transition-all duration-300"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 font-medium"
             >
               Get in Touch
             </motion.a>
             <motion.a
               href="#featured-work"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="px-6 py-3 border-2 border-purple-500 text-white rounded-lg hover:bg-purple-500/10 transition-all duration-300"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-3 border-2 border-purple-500 text-white rounded-lg hover:bg-purple-500/10 transition-all duration-300 font-medium"
             >
               View My Work
             </motion.a>
@@ -541,7 +551,7 @@ function App() {
       </motion.section>
 
       {/* About Section */}
-      <section id="about" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <section id="about" className="py-24 relative">
         <div 
           className="absolute inset-0 z-0"
           style={{
@@ -558,10 +568,10 @@ function App() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
+              className="text-4xl md:text-5xl font-bold text-white mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -569,8 +579,9 @@ function App() {
             >
               About Me
             </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6"></div>
             <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
+              className="text-xl text-gray-200 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -579,7 +590,8 @@ function App() {
               Get to know me better
             </motion.p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -587,45 +599,99 @@ function App() {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <img
-                src={ikeImage}
-                alt="Theresa Odoom"
-                className="rounded-lg shadow-xl w-full h-auto"
-              />
-              <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-purple-500/20 rounded-lg -z-10" />
+              <div className="relative rounded-lg overflow-hidden shadow-2xl">
+                <img
+                  src={ikeImage}
+                  alt="Theresa Odoom"
+                  className="w-full h-auto transform hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-purple-500/20 rounded-lg -z-10"></div>
+              <div className="absolute -top-6 -left-6 w-48 h-48 bg-pink-500/20 rounded-lg -z-10"></div>
             </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <motion.p 
-                className="text-lg text-gray-200 transition-colors duration-300"
+              <motion.div 
+                className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                I am a passionate journalist and content creator with a keen eye for storytelling and a dedication to creating engaging content that resonates with audiences. With years of experience in the industry, I have developed a unique ability to connect with people through compelling narratives and authentic communication.
-              </motion.p>
-              <motion.p 
-                className="text-lg text-gray-200 transition-colors duration-300"
+                <h3 className="text-2xl font-semibold text-white">Who I Am</h3>
+                <p className="text-lg text-gray-200 leading-relaxed">
+                  I am a passionate journalist and content creator with a keen eye for storytelling and a dedication to creating engaging content that resonates with audiences. With years of experience in the industry, I have developed a unique ability to connect with people through compelling narratives and authentic communication.
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                My work spans across various platforms, from traditional journalism to digital content creation, allowing me to reach and engage with diverse audiences. I believe in the power of storytelling to inspire, educate, and create meaningful connections.
-              </motion.p>
+                <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-colors duration-300">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <FaPenFancy className="text-purple-400 w-5 h-5" />
+                    <h4 className="text-lg font-semibold text-white">Writing</h4>
+                  </div>
+                  <p className="text-gray-300">Crafting compelling stories and engaging content that captures attention and drives engagement.</p>
+                </div>
+                <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-colors duration-300">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <FaCamera className="text-purple-400 w-5 h-5" />
+                    <h4 className="text-lg font-semibold text-white">Photography</h4>
+                  </div>
+                  <p className="text-gray-300">Capturing moments and creating visual stories that complement written content.</p>
+                </div>
+                <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-colors duration-300">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <FaMicrophone className="text-purple-400 w-5 h-5" />
+                    <h4 className="text-lg font-semibold text-white">Interviewing</h4>
+                  </div>
+                  <p className="text-gray-300">Conducting insightful interviews that reveal authentic stories and perspectives.</p>
+                </div>
+                <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-colors duration-300">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <FaUser className="text-purple-400 w-5 h-5" />
+                    <h4 className="text-lg font-semibold text-white">Content Creation</h4>
+                  </div>
+                  <p className="text-gray-300">Developing engaging content across multiple platforms to reach diverse audiences.</p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="flex justify-center lg:justify-start"
+              >
+                <motion.a
+                  href="#contact"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 font-medium"
+                >
+                  Let's Work Together
+                  <FaArrowRight className="ml-2" />
+                </motion.a>
+              </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <section id="skills" className="py-24 relative">
         <div 
           className="absolute inset-0 z-0"
           style={{
@@ -642,10 +708,10 @@ function App() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
+              className="text-4xl md:text-5xl font-bold text-white mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -653,8 +719,9 @@ function App() {
             >
               Skills & Expertise
             </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6"></div>
             <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
+              className="text-xl text-gray-200 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -663,140 +730,14 @@ function App() {
               What I bring to the table
             </motion.p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Journalism",
-                skills: [
-                  "Investigative Reporting",
-                  "News Writing",
-                  "Interview Techniques",
-                  "Fact-Checking",
-                  "Ethical Journalism"
-                ]
-              },
-              {
-                title: "Content Creation",
-                skills: [
-                  "Social Media Strategy",
-                  "Content Planning",
-                  "Copywriting",
-                  "Brand Storytelling",
-                  "Audience Engagement"
-                ]
-              },
-              {
-                title: "Technical Skills",
-                skills: [
-                  "Video Editing",
-                  "Photo Editing",
-                  "Audio Production",
-                  "CMS Management",
-                  "Analytics & SEO"
-                ]
-              }
-            ].map((category, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg shadow-lg"
-              >
-                <h3 className="text-xl font-semibold text-white mb-4">{category.title}</h3>
-                <ul className="space-y-2">
-                  {category.skills.map((skill, skillIndex) => (
-                    <li key={skillIndex} className="flex items-center text-gray-200">
-                      <FaCheck className="text-purple-400 mr-2" />
-                      {skill}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Education Section */}
-      <section id="education" className="py-20 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
-          >
-            Education
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg"
-            >
-              <h3 className="text-xl font-semibold text-white mb-2">Bachelor of Arts in Journalism</h3>
-              <p className="text-purple-400 mb-4">University of Media Arts and Communication (UniMAC)</p>
-              <p className="text-gray-300 mb-2">2023 - 2027</p>
-              <p className="text-gray-400">Studied broadcast journalism, media ethics, and digital storytelling</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg"
-            >
-              <h3 className="text-xl font-semibold text-white mb-2">Advanced Certificate in Digital Media</h3>
-              <p className="text-purple-400 mb-4">University of Media Arts and Communication (UniMAC)</p>
-              <p className="text-gray-300 mb-2">2023 - Present</p>
-              <p className="text-gray-400">Specialized in digital content creation and social media management</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Traits Section */}
-      <section id="traits" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.traits})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-            filter: 'blur(0px)'
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              Personal Traits
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              What makes me unique
-            </motion.p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: <FaLightbulb className="w-8 h-8" />,
@@ -818,504 +759,26 @@ function App() {
                 title: "Communicative",
                 description: "Clear and effective communication"
               }
-            ].map((trait, index) => (
+            ].map((skill, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)",
-                  y: -5
-                }}
-                className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg shadow-lg text-center transition-all duration-300"
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
-                <motion.div 
-                  className="text-purple-400 mb-4"
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  {trait.icon}
-                </motion.div>
-                <motion.h3 
-                  className="text-xl font-semibold text-white mb-2 transition-colors duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                >
-                  {trait.title}
-                </motion.h3>
-                <motion.p 
-                  className="text-gray-200 transition-colors duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                >
-                  {trait.description}
-                </motion.p>
+                <div className="text-purple-400 mb-4">{skill.icon}</div>
+                <h3 className="text-xl font-semibold text-white mb-2">{skill.title}</h3>
+                <p className="text-gray-300">{skill.description}</p>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
-          >
-            What People Say
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg"
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <img 
-                    src={isaacImage} 
-                    alt="Isaac Kodom Boateng" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-white font-semibold">Isaac Kodom Boateng</h3>
-                  <p className="text-purple-400 text-sm">Software Developer</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "Working with Theresa has been an absolute pleasure. Her attention to detail and creative approach to content creation has helped bring our digital projects to life. She's not just a content creator, but a true digital storyteller."
-              </p>
-            </motion.div>
-
-            {/* Testimonial 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg"
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=faces"
-                    alt="Sarah Johnson" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-white font-semibold">Sarah Johnson</h3>
-                  <p className="text-purple-400 text-sm">News Editor</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "Theresa's journalistic skills are outstanding. Her ability to find and tell compelling stories, combined with her digital expertise, makes her a valuable asset in today's media landscape. She brings fresh perspectives to every project."
-              </p>
-            </motion.div>
-
-            {/* Testimonial 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg"
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=faces"
-                    alt="Michael Kwesi" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-white font-semibold">Michael Kwesi</h3>
-                  <p className="text-purple-400 text-sm">Digital Marketing Manager</p>
-                </div>
-              </div>
-              <p className="text-gray-300 italic">
-                "Theresa's strategic approach to digital content has transformed our social media presence. Her understanding of audience engagement and content trends has helped us achieve remarkable growth in our online community."
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Form */}
-      <section id="contact" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.contact})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-            filter: 'blur(0px)'
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              Get in Touch
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Let's discuss your project or collaboration
-            </motion.p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <h3 className="text-2xl font-semibold text-white mb-6">Contact Form</h3>
-              <form 
-                ref={formRef}
-                onSubmit={handleSubmit}
-                className="space-y-6"
-                noValidate
-              >
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="user_name"
-                    id="name"
-                    required
-                    minLength={2}
-                    maxLength={50}
-                    pattern="[A-Za-z\s]+"
-                    disabled={formStatus === 'sending'}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="Your name"
-                  />
-                  {validationErrors.name && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.name}</p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="user_email"
-                    id="email"
-                    required
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                    disabled={formStatus === 'sending'}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="your.email@example.com"
-                  />
-                  {validationErrors.email && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.email}</p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-200 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    name="message"
-                    id="message"
-                    rows={4}
-                    required
-                    minLength={10}
-                    maxLength={1000}
-                    disabled={formStatus === 'sending'}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="Your message"
-                  />
-                  {validationErrors.message && (
-                    <p className="mt-1 text-sm text-red-400">{validationErrors.message}</p>
-                  )}
-                </div>
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={formStatus === 'sending'}
-                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {formStatus === 'sending' ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    'Send Message'
-                  )}
-                </motion.button>
-              </form>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <h3 className="text-2xl font-semibold text-white mb-6">Book Me</h3>
-              <form onSubmit={handleBookingSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="booking-name" className="block text-sm font-medium text-gray-200 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="booking-name"
-                    value={bookingData.name}
-                    onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="booking-email" className="block text-sm font-medium text-gray-200 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="booking-email"
-                    value={bookingData.email}
-                    onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="your.email@example.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="project-type" className="block text-sm font-medium text-gray-200 mb-2">
-                    Project Type
-                  </label>
-                  <select
-                    id="project-type"
-                    value={bookingData.projectType}
-                    onChange={(e) => setBookingData({ ...bookingData, projectType: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="">Select a project type</option>
-                    <option value="journalism">Journalism</option>
-                    <option value="content-creation">Content Creation</option>
-                    <option value="video-production">Video Production</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="project-details" className="block text-sm font-medium text-gray-200 mb-2">
-                    Project Details
-                  </label>
-                  <textarea
-                    id="project-details"
-                    value={bookingData.projectDetails}
-                    onChange={(e) => setBookingData({ ...bookingData, projectDetails: e.target.value })}
-                    rows={4}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Tell me about your project"
-                    required
-                  />
-                </div>
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Sending...' : 'Submit Booking Request'}
-                </motion.button>
-              </form>
-            </motion.div>
-          </div>
-
-          {/* Notification */}
-          <AnimatePresence>
-            {formStatus === 'success' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-center"
-              >
-                Message sent successfully! I'll get back to you soon.
-              </motion.div>
-            )}
-            {formStatus === 'error' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-center"
-              >
-                {validationErrors.name || validationErrors.email || validationErrors.message || 'Oops! Something went wrong. Please try again later.'}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* CV/Resume Section */}
-      <section id="resume" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.about})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-            filter: 'blur(0px)'
-          }}
-        />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              Resume
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              View my professional experience
-            </motion.p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <h3 className="text-2xl font-semibold text-white mb-6">Professional Summary</h3>
-              <p className="text-gray-200 mb-6">
-                Experienced journalist and content creator with a proven track record in digital media, 
-                broadcast journalism, and social media management. Skilled in creating engaging content 
-                that resonates with diverse audiences.
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-lg font-medium text-white">Key Skills</h4>
-                  <ul className="list-disc list-inside text-gray-200 space-y-2">
-                    <li>Digital Content Creation</li>
-                    <li>Broadcast Journalism</li>
-                    <li>Social Media Management</li>
-                    <li>Video Production</li>
-                    <li>Storytelling & Narrative Development</li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <h3 className="text-2xl font-semibold text-white mb-6">Experience Highlights</h3>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-medium text-white">Senior Content Creator</h4>
-                  <p className="text-purple-400">2020 - Present</p>
-                  <ul className="list-disc list-inside text-gray-200 mt-2 space-y-1">
-                    <li>Developed and executed content strategies</li>
-                    <li>Managed social media campaigns</li>
-                    <li>Created engaging video content</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-lg font-medium text-white">Broadcast Journalist</h4>
-                  <p className="text-purple-400">2018 - 2020</p>
-                  <ul className="list-disc list-inside text-gray-200 mt-2 space-y-1">
-                    <li>Produced daily news segments</li>
-                    <li>Conducted interviews</li>
-                    <li>Wrote and edited news stories</li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-8 text-center"
-          >
-            <motion.a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-300"
-            >
-              <FaFileDownload className="mr-2" />
-              Download Full Resume
-            </motion.a>
           </motion.div>
         </div>
       </section>
 
       {/* Featured Work Section */}
-      <section id="featured-work" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <section id="featured-work" className="py-24 relative">
         <div 
           className="absolute inset-0 z-0"
           style={{
@@ -1332,10 +795,10 @@ function App() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
+              className="text-4xl md:text-5xl font-bold text-white mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1343,8 +806,9 @@ function App() {
             >
               Featured Work
             </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6"></div>
             <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
+              className="text-xl text-gray-200 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1353,7 +817,14 @@ function App() {
               Recent projects and published works
             </motion.p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
             {[
               {
                 title: "Investigative Journalism Series",
@@ -1379,10 +850,10 @@ function App() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
                 className="bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg group"
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-64 overflow-hidden">
                   <img
                     src={project.image}
                     alt={project.title}
@@ -1392,12 +863,12 @@ function App() {
                 </div>
                 <div className="p-6">
                   <span className="text-sm font-medium text-purple-400">{project.category}</span>
-                  <h3 className="text-xl font-semibold text-white mt-2">{project.title}</h3>
+                  <h3 className="text-xl font-semibold text-white mt-2 mb-4">{project.title}</h3>
                   <motion.a
                     href={project.link}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center mt-4 text-purple-400 hover:text-purple-300"
+                    className="inline-flex items-center text-purple-400 hover:text-purple-300 transition-colors duration-300"
                   >
                     View Project
                     <FaArrowRight className="ml-2" />
@@ -1405,16 +876,16 @@ function App() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Media Kit Section */}
-      <section id="media-kit" className="py-20 relative bg-gray-900">
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 relative">
         <div 
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.mediaKit})`,
+            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.testimonials})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
@@ -1427,235 +898,318 @@ function App() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <motion.h2 
-              className="text-4xl font-bold text-white mb-4"
+              className="text-4xl md:text-5xl font-bold text-white mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              Media Kit
+              Client Testimonials
             </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6"></div>
             <motion.p 
-              className="text-xl text-gray-200"
+              className="text-xl text-gray-200 max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Download my media kit and press materials
+              What people say about my work
             </motion.p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <div className="text-center">
-                <FaFileDownload className="text-5xl text-purple-400 mx-auto mb-6" />
-                <h3 className="text-2xl font-semibold text-white mb-4">Download Media Kit</h3>
-                <p className="text-gray-200 mb-6">
-                  Get access to my professional bio, high-resolution photos, and media assets.
-                </p>
-                <motion.a
-                  href="/theresa-odoom-media-kit.pdf"
-                  download
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300"
-                >
-                  <FaDownload className="mr-2" />
-                  Download PDF
-                </motion.a>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
-            >
-              <h3 className="text-2xl font-semibold text-white mb-6">Media Kit Contents</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <FaCheck className="text-purple-400 mt-1 mr-3" />
-                  <div>
-                    <h4 className="text-white font-medium">Professional Bio</h4>
-                    <p className="text-gray-300 text-sm">Detailed biography and career highlights</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-purple-400 mt-1 mr-3" />
-                  <div>
-                    <h4 className="text-white font-medium">High-Resolution Photos</h4>
-                    <p className="text-gray-300 text-sm">Professional headshots and event photos</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-purple-400 mt-1 mr-3" />
-                  <div>
-                    <h4 className="text-white font-medium">Press Coverage</h4>
-                    <p className="text-gray-300 text-sm">Featured articles and media appearances</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-purple-400 mt-1 mr-3" />
-                  <div>
-                    <h4 className="text-white font-medium">Social Media Stats</h4>
-                    <p className="text-gray-300 text-sm">Audience demographics and engagement metrics</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-purple-400 mt-1 mr-3" />
-                  <div>
-                    <h4 className="text-white font-medium">Contact Information</h4>
-                    <p className="text-gray-300 text-sm">Professional contact details and booking information</p>
-                  </div>
-                </li>
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      {/* Press & Recognition Section */}
-      <section id="press" className="py-20 relative bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.work})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-            filter: 'blur(0px)'
-          }}
-        />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <motion.h2 
-              className="text-4xl font-bold text-white mb-4 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              Press & Recognition
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-gray-200 transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Featured in media and industry recognition
-            </motion.p>
-          </motion.div>
-          <div className="space-y-8">
-            {[
-              {
-                title: "Young Journalist of the Year",
-                organization: "Ghana Media Awards",
-                year: "2023",
-                description: "Recognized for outstanding contributions to investigative journalism"
-              },
-              {
-                title: "Featured Content Creator",
-                organization: "Digital Media Summit",
-                year: "2023",
-                description: "Highlighted for innovative social media content strategies"
-              },
-              {
-                title: "Media Excellence Award",
-                organization: "Journalism Association",
-                year: "2022",
-                description: "Awarded for exceptional reporting and storytelling"
-              }
-            ].map((recognition, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg shadow-lg"
+                className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-colors duration-300"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white">{recognition.title}</h3>
-                    <p className="text-purple-400">{recognition.organization}</p>
-                    <p className="text-gray-200 mt-2">{recognition.description}</p>
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <span className="text-gray-400">{recognition.year}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{testimonial.name}</h3>
+                    <p className="text-gray-400">{testimonial.title}</p>
+                  </div>
                 </div>
+                <p className="text-gray-200">{testimonial.content}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Work Experience Section */}
-      <section id="work-experience" className="py-20 bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
+      {/* Contact Section */}
+      <section id="contact" className="py-24 relative">
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.95)), url(${sectionBackgrounds.contact})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            filter: 'blur(0px)'
+          }}
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            Experience Highlights
-          </motion.h2>
-          <div className="space-y-8">
-            <motion.div
+            <motion.h2 
+              className="text-4xl md:text-5xl font-bold text-white mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-gray-900 rounded-lg p-6 shadow-lg"
+              transition={{ duration: 0.6 }}
             >
-              <h3 className="text-xl font-semibold text-white mb-2">Senior Content Creator</h3>
-              <p className="text-purple-400 mb-4">Freelance</p>
-              <p className="text-gray-300 mb-2">2023 - Present</p>
-              <ul className="list-disc list-inside text-gray-400 space-y-2">
-                <li>Developed and executed content strategies</li>
-                <li>Managed social media campaigns</li>
-                <li>Created engaging video content</li>
-              </ul>
+              Get in Touch
+            </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6"></div>
+            <motion.p 
+              className="text-xl text-gray-200 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Let's discuss your next project
+            </motion.p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-8"
+            >
+              <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
+                <h3 className="text-3xl font-semibold text-white mb-8">Contact Information</h3>
+                <div className="space-y-8">
+                  <div className="flex items-start space-x-6">
+                    <div className="flex-shrink-0 w-14 h-14 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                      <FaEnvelope className="text-purple-400 w-7 h-7" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-medium text-gray-200 mb-2">Email</h4>
+                      <a 
+                        href="mailto:odoomtheresa448@gmail.com" 
+                        className="text-2xl text-purple-400 hover:text-purple-300 transition-colors duration-300"
+                      >
+                        odoomtheresa448@gmail.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-6">
+                    <div className="flex-shrink-0 w-14 h-14 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                      <FaPhone className="text-purple-400 w-7 h-7" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-medium text-gray-200 mb-2">Phone</h4>
+                      <a 
+                        href="tel:+233599363312" 
+                        className="text-2xl text-purple-400 hover:text-purple-300 transition-colors duration-300"
+                      >
+                        +233 59 936 3312
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-6">
+                    <div className="flex-shrink-0 w-14 h-14 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                      <FaMapMarkerAlt className="text-purple-400 w-7 h-7" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-medium text-gray-200 mb-2">Location</h4>
+                      <p className="text-2xl text-purple-400">
+                        Teshie, Accra, Ghana
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-700/50">
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3970.973923539843!2d-0.0665!3d5.6037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9084b2b7a773%3A0xbed14ed8650e2dd3!2sTeshie%2C%20Accra%2C%20Ghana!5e0!3m2!1sen!2sus!4v1647881234567!5m2!1sen!2sus"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div className="mt-10 pt-8 border-t border-gray-700/50">
+                  <h4 className="text-xl font-medium text-gray-200 mb-6">Connect with me</h4>
+                  <div className="flex space-x-6">
+                    {[
+                      { icon: FaLinkedin, href: "https://www.linkedin.com/in/theresa-odoom-7b0b0b1b3/" },
+                      { icon: FaTwitter, href: "https://twitter.com/theresaodoom" },
+                      { icon: FaInstagram, href: "https://www.instagram.com/theresaodoom/" }
+                    ].map((social, index) => (
+                      <motion.a
+                        key={index}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-14 h-14 bg-purple-500/10 rounded-lg flex items-center justify-center hover:bg-purple-500/20 transition-colors duration-300"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <social.icon className="text-purple-400 w-7 h-7" />
+                      </motion.a>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </motion.div>
+
+            {/* Contact Form */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-gray-900 rounded-lg p-6 shadow-lg"
+              transition={{ duration: 0.6 }}
             >
-              <h3 className="text-xl font-semibold text-white mb-2">Broadcast Journalist</h3>
-              <p className="text-purple-400 mb-4">Ghana Broadcasting Corporation</p>
-              <p className="text-gray-300 mb-2">2023 - 2027</p>
-              <ul className="list-disc list-inside text-gray-400 space-y-2">
-                <li>Produced daily news segments</li>
-                <li>Conducted interviews</li>
-                <li>Wrote and edited news stories</li>
-              </ul>
+              <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <label htmlFor="name" className="block text-lg font-medium text-gray-200 mb-2">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                      placeholder="Your name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-lg font-medium text-gray-200 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                      placeholder="your.email@example.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-lg font-medium text-gray-200 mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      rows={6}
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                      placeholder="Your message"
+                      required
+                    ></textarea>
+                  </div>
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 font-medium text-lg"
+                  >
+                    Send Message
+                  </motion.button>
+                </form>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">© 2024 Theresa Odoom. All rights reserved.</p>
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Theresa Odoom</h3>
+              <p className="text-gray-400">Award-winning journalist and content creator dedicated to telling compelling stories.</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                {[
+                  { href: "#about", label: "About" },
+                  { href: "#skills", label: "Skills" },
+                  { href: "#featured-work", label: "Work" },
+                  { href: "#contact", label: "Contact" }
+                ].map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href} className="text-gray-400 hover:text-white transition-colors duration-300">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Connect</h3>
+              <div className="flex space-x-4">
+                <a 
+                  href="https://www.facebook.com/missodoom" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  <FaFacebook className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://www.instagram.com/missodoom" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  <FaInstagram className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://www.tiktok.com/@miss_odoom_" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  <FaTiktok className="w-6 h-6" />
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+            <p className="text-gray-400">© 2024 Theresa Odoom. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
