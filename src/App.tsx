@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { FaFacebook, FaInstagram, FaTiktok, FaGraduationCap, FaUser, FaLightbulb, FaCamera, FaPenFancy, FaMicrophone, FaMoon, FaSun, FaEnvelope, FaCalendarAlt, FaFileDownload, FaArrowRight, FaCheck, FaDownload } from 'react-icons/fa'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import emailjs from '@emailjs/browser'
+import { emailConfig } from './config/emailConfig'
 // @ts-ignore
 import profileImage from './assets/profile.jpg'
 // @ts-ignore
@@ -37,6 +38,13 @@ function App() {
 
   const contactFormRef = useRef<HTMLFormElement>(null)
   const bookingFormRef = useRef<HTMLFormElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
 
   useEffect(() => {
     // Check if user prefers dark mode
@@ -132,6 +140,82 @@ function App() {
       }
     })
   }
+
+  // Add notification timeout
+  useEffect(() => {
+    if (formStatus === 'success' || formStatus === 'error') {
+      const timer = setTimeout(() => {
+        setFormStatus('idle');
+        setValidationErrors({ name: '', email: '', message: '' });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [formStatus]);
+
+  const validateForm = (form: HTMLFormElement) => {
+    const errors = {
+      name: '',
+      email: '',
+      message: ''
+    };
+
+    // Name validation
+    const name = form.user_name.value;
+    if (!name) {
+      errors.name = 'Name is required';
+    } else if (name.length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    } else if (!/^[A-Za-z\s]+$/.test(name)) {
+      errors.name = 'Name can only contain letters and spaces';
+    }
+
+    // Email validation
+    const email = form.user_email.value;
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    // Message validation
+    const message = form.message.value;
+    if (!message) {
+      errors.message = 'Message is required';
+    } else if (message.length < 10) {
+      errors.message = 'Message must be at least 10 characters';
+    } else if (message.length > 1000) {
+      errors.message = 'Message must be less than 1000 characters';
+    }
+
+    setValidationErrors(errors);
+    return !Object.values(errors).some(error => error !== '');
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    if (!validateForm(form)) {
+      setFormStatus('error');
+      return;
+    }
+
+    setFormStatus('sending');
+
+    try {
+      await emailjs.sendForm(
+        emailConfig.serviceID,
+        emailConfig.templateID,
+        formRef.current!,
+        emailConfig.publicKey
+      );
+      setFormStatus('success');
+      formRef.current?.reset();
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setFormStatus('error');
+    }
+  };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -919,20 +1003,31 @@ function App() {
               className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-lg shadow-lg"
             >
               <h3 className="text-2xl font-semibold text-white mb-6">Contact Form</h3>
-              <form onSubmit={handleContactSubmit} className="space-y-6">
+              <form 
+                ref={formRef}
+                onSubmit={handleSubmit}
+                className="space-y-6"
+                noValidate
+              >
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">
                     Name
                   </label>
                   <input
                     type="text"
+                    name="user_name"
                     id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Your name"
                     required
+                    minLength={2}
+                    maxLength={50}
+                    pattern="[A-Za-z\s]+"
+                    disabled={formStatus === 'sending'}
+                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="Your name"
                   />
+                  {validationErrors.name && (
+                    <p className="mt-1 text-sm text-red-400">{validationErrors.name}</p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
@@ -940,39 +1035,59 @@ function App() {
                   </label>
                   <input
                     type="email"
+                    name="user_email"
                     id="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="your.email@example.com"
                     required
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    disabled={formStatus === 'sending'}
+                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="your.email@example.com"
                   />
+                  {validationErrors.email && (
+                    <p className="mt-1 text-sm text-red-400">{validationErrors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-200 mb-2">
                     Message
                   </label>
                   <textarea
+                    name="message"
                     id="message"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Your message"
                     required
+                    minLength={10}
+                    maxLength={1000}
+                    disabled={formStatus === 'sending'}
+                    className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="Your message"
                   />
+                  {validationErrors.message && (
+                    <p className="mt-1 text-sm text-red-400">{validationErrors.message}</p>
+                  )}
                 </div>
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300"
-                  disabled={isSubmitting}
+                  disabled={formStatus === 'sending'}
+                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {formStatus === 'sending' ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    'Send Message'
+                  )}
                 </motion.button>
               </form>
             </motion.div>
+
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -1054,6 +1169,30 @@ function App() {
               </form>
             </motion.div>
           </div>
+
+          {/* Notification */}
+          <AnimatePresence>
+            {formStatus === 'success' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-4 p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-center"
+              >
+                Message sent successfully! I'll get back to you soon.
+              </motion.div>
+            )}
+            {formStatus === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-center"
+              >
+                {validationErrors.name || validationErrors.email || validationErrors.message || 'Oops! Something went wrong. Please try again later.'}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
